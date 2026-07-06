@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script>
+(function(){
+  var STORE_KEY = "npml-guitar-auth";
+  var MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
+  try {
+    var saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+    var ok = saved && saved.ok && (Date.now() - saved.ts) < MAX_AGE_MS;
+    if (!ok) {
+      var here = location.pathname.split("/").pop() || "index.html";
+      location.replace("login.html?next=" + encodeURIComponent(here));
+    }
+  } catch(e) { location.replace("login.html"); }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fundamentos em Dó — Guia de Estudo</title>
+<style>
+  :root {
+    --paper: #F4F3F0; --paper-2: #FBFAF8; --card: #FFFFFF;
+    --ink: #1C1E24; --ink-soft: #4A4D56; --ink-faint: #83868F;
+    --line: #E0DDD6; --line-strong: #CFCBC2;
+    --brass: #B07A15; --brass-deep: #8A5E0C; --brass-wash: #F3E9D4;
+    --focus: #2C6E63;
+    --shadow: 0 1px 2px rgba(28,30,36,.05), 0 6px 20px rgba(28,30,36,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #14161B; --paper-2: #181A20; --card: #1E2129;
+      --ink: #E9E7E1; --ink-soft: #B4B2AC; --ink-faint: #7E8089;
+      --line: #2B2E37; --line-strong: #383C47;
+      --brass: #D5A23F; --brass-deep: #E7BB63; --brass-wash: #2A2418;
+      --focus: #55A99B;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F4F3F0; --paper-2: #FBFAF8; --card: #FFFFFF;
+    --ink: #1C1E24; --ink-soft: #4A4D56; --ink-faint: #83868F;
+    --line: #E0DDD6; --line-strong: #CFCBC2;
+    --brass: #B07A15; --brass-deep: #8A5E0C; --brass-wash: #F3E9D4;
+    --focus: #2C6E63;
+    --shadow: 0 1px 2px rgba(28,30,36,.05), 0 6px 20px rgba(28,30,36,.06);
+  }
+  :root[data-theme="dark"] {
+    --paper: #14161B; --paper-2: #181A20; --card: #1E2129;
+    --ink: #E9E7E1; --ink-soft: #B4B2AC; --ink-faint: #7E8089;
+    --line: #2B2E37; --line-strong: #383C47;
+    --brass: #D5A23F; --brass-deep: #E7BB63; --brass-wash: #2A2418;
+    --focus: #55A99B;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); line-height: 1.6; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2rem) 4rem; }
+
+  .eyebrow { font-family: var(--mono); font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: var(--brass); margin: 0 0 .9rem; display: flex; align-items: center; gap: .6rem; }
+  .eyebrow::before { content: ""; width: 26px; height: 2px; background: var(--brass); display: inline-block; }
+  h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(2rem, 6vw, 3rem); line-height: 1.05; letter-spacing: -.01em; text-wrap: balance; margin: 0 0 .7rem; }
+  h1 em { font-style: italic; color: var(--brass); }
+  .lead { color: var(--ink-soft); font-size: 1.08rem; max-width: 62ch; margin: 0 0 1.4rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .chip { font-family: var(--mono); font-size: .78rem; padding: .34rem .7rem; border: 1px solid var(--line-strong); border-radius: 999px; color: var(--ink-soft); background: var(--paper-2); }
+  .chip b { color: var(--ink); font-weight: 600; }
+
+  section { margin-top: 3rem; }
+  .sec-head { display: flex; align-items: baseline; gap: .75rem; border-bottom: 1px solid var(--line); padding-bottom: .6rem; margin-bottom: 1.3rem; }
+  .sec-num { font-family: var(--mono); font-size: .78rem; color: var(--brass); font-weight: 600; }
+  h2 { font-family: var(--serif); font-weight: 600; font-size: 1.5rem; margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+  .sec-note { color: var(--ink-faint); font-size: .93rem; margin: -.5rem 0 1.3rem; max-width: 68ch; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; min-width: 460px; background: var(--card); }
+  th, td { text-align: left; padding: .68rem 1rem; border-bottom: 1px solid var(--line); font-size: .9rem; }
+  th { font-family: var(--mono); font-size: .7rem; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  td.mono, th.mono, td.chord, td.formula { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  td.chord { font-weight: 600; color: var(--brass-deep); }
+  td.formula { color: var(--ink-soft); }
+  tbody tr.group-major td.chord { color: var(--brass-deep); }
+  .cor { display: inline-block; font-family: var(--mono); font-size: .74rem; padding: .1rem .45rem; border-radius: 5px; background: var(--brass-wash); color: var(--brass-deep); border: 1px solid var(--brass); }
+  .neutral { color: var(--ink-faint); font-style: italic; font-size: .86rem; }
+  .arps { font-family: var(--mono); font-size: .84rem; white-space: nowrap; }
+  .arps b { color: var(--brass-deep); }
+
+  .callout { background: linear-gradient(180deg, var(--brass-wash), var(--card)); border: 1px solid var(--brass); border-radius: 10px; padding: 1rem 1.15rem; margin-top: 1.1rem; font-size: .92rem; box-shadow: var(--shadow); }
+  .callout b { color: var(--brass-deep); }
+  .chain { font-family: var(--mono); font-size: .84rem; color: var(--ink); background: var(--paper-2); border: 1px solid var(--line); border-radius: 7px; padding: .5rem .7rem; margin-top: .6rem; display: inline-block; }
+
+  .steps { display: grid; gap: .6rem; margin-bottom: 1.3rem; }
+  .step { display: grid; grid-template-columns: auto 1fr; gap: .9rem; align-items: start; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: .85rem 1rem; box-shadow: var(--shadow); }
+  .step .s-num { font-family: var(--mono); font-weight: 700; color: #fff; background: var(--brass); width: 1.7rem; height: 1.7rem; border-radius: 6px; display: grid; place-items: center; font-size: .9rem; }
+  .step .s-txt b { display: block; margin-bottom: .1rem; }
+  .step .s-txt span { color: var(--ink-soft); font-size: .92rem; }
+
+  .axes { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+  @media (max-width: 620px){ .axes { grid-template-columns: 1fr; } }
+  .axis { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; box-shadow: var(--shadow); }
+  .axis h3 { font-family: var(--mono); font-size: .74rem; letter-spacing: .09em; text-transform: uppercase; color: var(--brass); margin: 0 0 .4rem; }
+  .axis p { margin: 0; font-size: .9rem; color: var(--ink-soft); }
+  .rot { display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .6rem; }
+  .rot .k { font-family: var(--mono); font-size: .78rem; padding: .2rem .5rem; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--paper-2); }
+
+  ol.phases { list-style: none; counter-reset: p; padding: 0; margin: 1.1rem 0 0; display: grid; gap: .55rem; }
+  ol.phases li { counter-increment: p; display: grid; grid-template-columns: auto 1fr; gap: .9rem; align-items: baseline; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: .7rem 1rem; box-shadow: var(--shadow); }
+  ol.phases li::before { content: counter(p); font-family: var(--mono); font-weight: 700; color: var(--brass); }
+  ol.phases b { font-weight: 600; }
+  ol.phases span { color: var(--ink-soft); font-size: .9rem; }
+
+  .track { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; }
+  .track-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; box-shadow: var(--shadow); }
+  .track-card h3 { font-family: var(--mono); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 .7rem; }
+  .check { display: flex; align-items: center; gap: .55rem; padding: .18rem 0; font-size: .9rem; cursor: pointer; }
+  .check input { appearance: none; width: 1.05rem; height: 1.05rem; border: 1.5px solid var(--line-strong); border-radius: 4px; display: grid; place-items: center; cursor: pointer; flex: none; background: var(--paper-2); }
+  .check input:checked { background: var(--brass); border-color: var(--brass); }
+  .check input:checked::after { content: "✓"; color: #fff; font-size: .75rem; font-weight: 700; }
+  .check input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .check input:checked + span { color: var(--ink-faint); text-decoration: line-through; }
+
+  footer { margin-top: 3.5rem; padding-top: 1.2rem; border-top: 1px solid var(--line); color: var(--ink-faint); font-size: .82rem; font-family: var(--mono); }
+
+  @media (prefers-reduced-motion: no-preference){
+    section > *, .step, .track-card { animation: rise .5s cubic-bezier(.2,.7,.3,1) both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Guia de estudo · base da pirâmide</p>
+    <h1>Fundamentos em <em>Dó</em>: vocabulário, modos e arpejos</h1>
+    <p class="lead">Tudo enraizado na escala de Dó Maior — sem acidentes. Um mapa único que liga as formas do braço (arpejos, pentatônica, tétrades) à derivação modal e à aplicação de arpégios.</p>
+    <div class="chips">
+      <span class="chip">🎼 base: <b>C – D – E – F – G – A – B</b></span>
+      <span class="chip">sem sustenidos ou bemóis</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>O vocabulário em Dó</h2></div>
+    <p class="sec-note">As 7 formas para cobrir na base da pirâmide. Todas em C, para você comparar as fórmulas lado a lado.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Forma</th><th>Notas (em C)</th><th class="mono">Fórmula</th><th>Contexto</th></tr></thead>
+        <tbody>
+          <tr class="group-major"><td class="chord">Arpejo maior</td><td class="mono">C · E · G</td><td class="formula">1 · 3 · 5</td><td>maior</td></tr>
+          <tr><td class="chord">Arpejo menor</td><td class="mono">C · E♭ · G</td><td class="formula">1 · b3 · 5</td><td>menor</td></tr>
+          <tr class="group-major"><td class="chord">Pentatônica maior</td><td class="mono">C · D · E · G · A</td><td class="formula">1 · 2 · 3 · 5 · 6</td><td>improviso</td></tr>
+          <tr class="group-major"><td class="chord">Tétrade 7M</td><td class="mono">C · E · G · B</td><td class="formula">1 · 3 · 5 · 7</td><td>maior</td></tr>
+          <tr class="group-major"><td class="chord">Tétrade 7</td><td class="mono">C · E · G · B♭</td><td class="formula">1 · 3 · 5 · b7</td><td>dominante</td></tr>
+          <tr><td class="chord">Tétrade m7</td><td class="mono">C · E♭ · G · B♭</td><td class="formula">1 · b3 · 5 · b7</td><td>menor</td></tr>
+          <tr><td class="chord">Tétrade m7(b5)</td><td class="mono">C · E♭ · G♭ · B♭</td><td class="formula">1 · b3 · b5 · b7</td><td>meio-dim.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <b>Economia de esforço:</b> cada forma é uma alteração de <b>uma nota só</b> em relação à vizinha. Se você enxerga a 7M no braço, chega em todas mexendo um dedo por vez:
+      <div class="chain">7M &nbsp;—b7→&nbsp; 7 &nbsp;—b3→&nbsp; m7 &nbsp;—b5→&nbsp; m7(b5)</div>
+    </div>
+    <p class="sec-note" style="margin-top:1rem">A <b>pentatônica maior</b> é a escala maior <b>sem os semitons</b> (tira o 4º e o 7º graus) — por isso é tão segura para improvisar.</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>Derivação modal</h2></div>
+    <p class="sec-note">Mesmas 7 notas de C — só muda a nota tratada como tônica (1). Cada nova tônica gera um acorde e uma "cor" característica.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Grau</th><th>Modo</th><th>Tônica</th><th class="mono">Fórmula (na raiz do modo)</th><th>Cor característica</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">I</td><td>Jônio</td><td class="chord">C7M</td><td class="formula">1 2 3 4 5 6 7</td><td><span class="neutral">maior padrão</span></td></tr>
+          <tr><td class="mono">II</td><td>Dórico</td><td class="chord">Dm7</td><td class="formula">1 2 b3 4 5 6 b7</td><td><span class="cor">6ª maior</span></td></tr>
+          <tr><td class="mono">III</td><td>Frígio</td><td class="chord">Em7</td><td class="formula">1 b2 b3 4 5 b6 b7</td><td><span class="cor">b2</span></td></tr>
+          <tr><td class="mono">IV</td><td>Lídio</td><td class="chord">F7M</td><td class="formula">1 2 3 #4 5 6 7</td><td><span class="cor">#4</span></td></tr>
+          <tr><td class="mono">V</td><td>Mixolídio</td><td class="chord">G7</td><td class="formula">1 2 3 4 5 6 b7</td><td><span class="cor">b7</span></td></tr>
+          <tr><td class="mono">VI</td><td>Eólio</td><td class="chord">Am7</td><td class="formula">1 2 b3 4 5 b6 b7</td><td><span class="neutral">menor natural</span></td></tr>
+          <tr><td class="mono">VII</td><td>Lócrio</td><td class="chord">Bm7(b5)</td><td class="formula">1 b2 b3 4 b5 b6 b7</td><td><span class="cor">b5</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>A ponte: qualidade do acorde → modo</h2></div>
+    <p class="sec-note">As 4 tétrades que você estuda são exatamente as qualidades dos acordes-tônica. Sabendo a qualidade, você já sabe quais modos cabem.</p>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Qualidade</th><th class="mono">Fórmula</th><th>Modos que a geram</th></tr></thead>
+        <tbody>
+          <tr><td class="chord">7M</td><td class="formula">1 3 5 7</td><td><b>Jônio</b> (I) · <b>Lídio</b> (IV)</td></tr>
+          <tr><td class="chord">7</td><td class="formula">1 3 5 b7</td><td><b>Mixolídio</b> (V)</td></tr>
+          <tr><td class="chord">m7</td><td class="formula">1 b3 5 b7</td><td><b>Dórico</b> (II) · <b>Frígio</b> (III) · <b>Eólio</b> (VI)</td></tr>
+          <tr><td class="chord">m7(b5)</td><td class="formula">1 b3 b5 b7</td><td><b>Lócrio</b> (VII)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="sec-note" style="margin-top:1rem">Dentro da mesma família, a <b>cor</b> (coluna anterior) desempata: Dórico, Frígio e Eólio são todos m7 — o que muda é a 6ª maior, a b2 ou o "neutro".</p>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>Aplicação de arpégios</h2></div>
+    <p class="sec-note">O topo da pirâmide. As 4 notas de um acorde são as tônicas de 4 arpégios do campo — toque-os e sai o som do modo.</p>
+    <div class="steps">
+      <div class="step"><span class="s-num">1</span><span class="s-txt"><b>Definir o modo sobre o acorde</b><span>Ex.: sobre Dm7 → Dórico (II grau do campo de C).</span></span></div>
+      <div class="step"><span class="s-num">2</span><span class="s-txt"><b>Abrir as notas do acorde</b><span>Tônica, 3ª, 5ª e 7ª. Ex.: Dm7 = D · F · A · C.</span></span></div>
+      <div class="step"><span class="s-num">3</span><span class="s-txt"><b>Associar aos arpégios do campo</b><span>Cada nota é tônica de um arpégio diatônico, empilhados em terças.</span></span></div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Grau</th><th>Modo</th><th>Acorde</th><th>Notas</th><th>Os 4 arpégios</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">I</td><td>Jônio</td><td class="chord">C7M</td><td class="mono">C E G B</td><td class="arps"><b>C7M</b> · Em7 · G7 · Bm7(b5)</td></tr>
+          <tr><td class="mono">II</td><td>Dórico</td><td class="chord">Dm7</td><td class="mono">D F A C</td><td class="arps"><b>Dm7</b> · F7M · Am7 · C7M</td></tr>
+          <tr><td class="mono">III</td><td>Frígio</td><td class="chord">Em7</td><td class="mono">E G B D</td><td class="arps"><b>Em7</b> · G7 · Bm7(b5) · Dm7</td></tr>
+          <tr><td class="mono">IV</td><td>Lídio</td><td class="chord">F7M</td><td class="mono">F A C E</td><td class="arps"><b>F7M</b> · Am7 · C7M · Em7</td></tr>
+          <tr><td class="mono">V</td><td>Mixolídio</td><td class="chord">G7</td><td class="mono">G B D F</td><td class="arps"><b>G7</b> · Bm7(b5) · Dm7 · F7M</td></tr>
+          <tr><td class="mono">VI</td><td>Eólio</td><td class="chord">Am7</td><td class="mono">A C E G</td><td class="arps"><b>Am7</b> · C7M · Em7 · G7</td></tr>
+          <tr><td class="mono">VII</td><td>Lócrio</td><td class="chord">Bm7(b5)</td><td class="mono">B D F A</td><td class="arps"><b>Bm7(b5)</b> · Dm7 · F7M · Am7</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout"><b>O padrão:</b> os 7 acordes formam um ciclo (C7M→Dm7→Em7→F7M→G7→Am7→Bm7♭5→…). A associação de qualquer acorde é <b>ele mesmo + os 3 seguintes, saltando de terça em terça</b>.</div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Como cobrir tudo</h2></div>
+    <p class="sec-note">Passe cada forma pelos dois eixos. Comece sempre em C e só depois transponha.</p>
+    <div class="axes">
+      <div class="axis">
+        <h3>Eixo 1 · Posições</h3>
+        <p>Toque cada forma nas <b>5 posições</b> (CAGED) para cobrir o braço inteiro. Comece com a tônica na 6ª e na 5ª corda.</p>
+      </div>
+      <div class="axis">
+        <h3>Eixo 2 · Tonalidades</h3>
+        <p>Firmou em C? Transponha pelo <b>ciclo de quartas</b>:</p>
+        <div class="rot"><span class="k">C</span><span class="k">F</span><span class="k">B♭</span><span class="k">E♭</span><span class="k">A♭</span><span class="k">D♭</span><span class="k">G♭</span><span class="k">B</span><span class="k">E</span><span class="k">A</span><span class="k">D</span><span class="k">G</span></div>
+      </div>
+    </div>
+    <ol class="phases">
+      <li><span><b>Núcleo.</b> Arpejo maior e menor em 1 posição — tônica na 6ª e na 5ª corda.</span></li>
+      <li><span><b>Pentatônica.</b> A penta maior nas 5 posições, subindo e descendo o braço.</span></li>
+      <li><span><b>Tétrades.</b> 7M → 7 → m7 → m7(b5), transformando uma na outra (1 nota por vez).</span></li>
+      <li><span><b>Espalhar.</b> Todas as tétrades nas 5 posições — achar qualquer arpejo em qualquer região.</span></li>
+      <li><span><b>Transpor.</b> Tudo pelo ciclo de quartas, até a mesma fluência em qualquer tom.</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>Tracker de cobertura</h2></div>
+    <p class="sec-note">Marque conforme dominar (tocar sem pensar). Fica salvo neste navegador.</p>
+    <div class="track">
+      <div class="track-card">
+        <h3>Formas base (em C)</h3>
+        <label class="check"><input type="checkbox" data-k="f-maj"><span>Arpejo maior</span></label>
+        <label class="check"><input type="checkbox" data-k="f-min"><span>Arpejo menor</span></label>
+        <label class="check"><input type="checkbox" data-k="f-penta"><span>Pentatônica maior</span></label>
+      </div>
+      <div class="track-card">
+        <h3>Tétrades (em C)</h3>
+        <label class="check"><input type="checkbox" data-k="t-7m"><span>7M — 1 3 5 7</span></label>
+        <label class="check"><input type="checkbox" data-k="t-7"><span>7 — 1 3 5 b7</span></label>
+        <label class="check"><input type="checkbox" data-k="t-m7"><span>m7 — 1 b3 5 b7</span></label>
+        <label class="check"><input type="checkbox" data-k="t-m7b5"><span>m7(b5) — 1 b3 b5 b7</span></label>
+      </div>
+      <div class="track-card">
+        <h3>Marcos de cobertura</h3>
+        <label class="check"><input type="checkbox" data-k="mc-1pos"><span>Tudo em 1 posição</span></label>
+        <label class="check"><input type="checkbox" data-k="mc-penta5"><span>Pentatônica nas 5 posições</span></label>
+        <label class="check"><input type="checkbox" data-k="mc-tet5"><span>Tétrades nas 5 posições</span></label>
+        <label class="check"><input type="checkbox" data-k="mc-transp"><span>Transposto (ciclo de quartas)</span></label>
+      </div>
+    </div>
+  </section>
+
+  <footer>Base da pirâmide · complemento do cronograma semanal. Suba para os modos e a aplicação quando as formas estiverem firmes.</footer>
+</div>
+
+<script>
+  (function(){
+    var KEY = "fundamentos-c-v1";
+    var boxes = document.querySelectorAll('.check input');
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){}
+    boxes.forEach(function(b){
+      if (saved[b.dataset.k]) b.checked = true;
+      b.addEventListener('change', function(){
+        saved[b.dataset.k] = b.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch(e){}
+      });
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script>
+(function(){
+  var STORE_KEY = "npml-guitar-auth";
+  var MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
+  try {
+    var saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+    var ok = saved && saved.ok && (Date.now() - saved.ts) < MAX_AGE_MS;
+    if (!ok) {
+      var here = location.pathname.split("/").pop() || "index.html";
+      location.replace("login.html?next=" + encodeURIComponent(here));
+    }
+  } catch(e) { location.replace("login.html"); }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Central de Estudos — Guitarra</title>
+<style>
+  :root {
+    --paper: #F4F3F0; --paper-2: #FBFAF8; --card: #FFFFFF;
+    --ink: #1C1E24; --ink-soft: #4A4D56; --ink-faint: #83868F;
+    --line: #E0DDD6; --line-strong: #CFCBC2;
+    --brass: #B07A15; --brass-deep: #8A5E0C; --brass-wash: #F3E9D4;
+    --focus: #2C6E63;
+    --shadow: 0 1px 2px rgba(28,30,36,.05), 0 6px 20px rgba(28,30,36,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#14161B; --paper-2:#181A20; --card:#1E2129; --ink:#E9E7E1; --ink-soft:#B4B2AC; --ink-faint:#7E8089; --line:#2B2E37; --line-strong:#3A3F4A; --brass:#D5A23F; --brass-deep:#E7BB63; --brass-wash:#2A2418; --focus:#55A99B; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); }
+  }
+  :root[data-theme="light"]{ --paper:#F4F3F0; --paper-2:#FBFAF8; --card:#FFFFFF; --ink:#1C1E24; --ink-soft:#4A4D56; --ink-faint:#83868F; --line:#E0DDD6; --line-strong:#CFCBC2; --brass:#B07A15; --brass-deep:#8A5E0C; --brass-wash:#F3E9D4; --focus:#2C6E63; --shadow:0 1px 2px rgba(28,30,36,.05),0 6px 20px rgba(28,30,36,.06); }
+  :root[data-theme="dark"]{ --paper:#14161B; --paper-2:#181A20; --card:#1E2129; --ink:#E9E7E1; --ink-soft:#B4B2AC; --ink-faint:#7E8089; --line:#2B2E37; --line-strong:#3A3F4A; --brass:#D5A23F; --brass-deep:#E7BB63; --brass-wash:#2A2418; --focus:#55A99B; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); }
+
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width: 880px; margin:0 auto; padding: clamp(1.5rem,4vw,3.5rem) clamp(1rem,4vw,2rem) 4rem; }
+
+  .eyebrow { font-family:var(--mono); font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--brass); margin:0 0 .9rem; display:flex; align-items:center; gap:.6rem; }
+  .eyebrow::before { content:""; width:26px; height:2px; background:var(--brass); display:inline-block; }
+  h1 { font-family:var(--serif); font-weight:600; font-size:clamp(2rem,6vw,3rem); line-height:1.05; letter-spacing:-.01em; text-wrap:balance; margin:0 0 .7rem; }
+  h1 em { font-style:italic; color:var(--brass); }
+  .lead { color:var(--ink-soft); font-size:1.08rem; max-width:60ch; margin:0 0 2.2rem; }
+
+  .menu { display:grid; gap: 1rem; }
+  .item {
+    display:grid; grid-template-columns: auto 1fr auto; align-items:center; gap:1.1rem;
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:1.15rem 1.3rem; box-shadow:var(--shadow); text-decoration:none; color:inherit;
+    transition: border-color .15s, transform .15s;
+  }
+  .item:hover { border-color:var(--brass); transform: translateY(-1px); }
+  .item:focus-visible { outline:2px solid var(--focus); outline-offset:3px; }
+  .glyph {
+    width:3rem; height:3rem; border-radius:10px; display:grid; place-items:center;
+    background:var(--brass-wash); border:1px solid var(--brass); font-size:1.35rem; flex:none;
+  }
+  .item-body .tag { font-family:var(--mono); font-size:.68rem; letter-spacing:.09em; text-transform:uppercase; color:var(--brass-deep); margin-bottom:.15rem; }
+  .item-body h2 { font-family:var(--serif); font-size:1.2rem; font-weight:600; margin:0 0 .25rem; }
+  .item-body p { margin:0; font-size:.9rem; color:var(--ink-soft); max-width:48ch; }
+  .arrow { font-family:var(--mono); color:var(--ink-faint); font-size:1.1rem; }
+  .item:hover .arrow { color:var(--brass); }
+
+  .map { margin-top:2.6rem; }
+  .map-head { display:flex; align-items:baseline; gap:.75rem; border-bottom:1px solid var(--line); padding-bottom:.6rem; margin-bottom:1.1rem; }
+  .map-head .sec-num { font-family:var(--mono); font-size:.78rem; color:var(--brass); font-weight:600; }
+  .map-head h2 { font-family:var(--serif); font-weight:600; font-size:1.3rem; margin:0; }
+  .flow { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; font-size:.92rem; color:var(--ink-soft); }
+  .flow b { color:var(--ink); font-weight:600; }
+  .flow .sep { color:var(--brass); font-family:var(--mono); }
+
+  footer { margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--line); color:var(--ink-faint); font-size:.82rem; font-family:var(--mono); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Método Antônio Lugão · Guitarra</p>
+    <h1>Central de estudos: <em>tudo num só lugar</em></h1>
+    <p class="lead">Três peças do mesmo kit — o cronograma organiza o quando, o guia organiza o quê, e os diagramas colocam a mão no braço.</p>
+  </header>
+
+  <nav class="menu">
+    <a class="item" href="cronograma.html">
+      <span class="glyph">🗓️</span>
+      <span class="item-body">
+        <span class="tag">Rotina semanal</span>
+        <h2>Cronograma de estudos</h2>
+        <p>O ciclo da semana — construção, pentas, campo/modos, aplicação de arpégios e checklist de cobertura.</p>
+      </span>
+      <span class="arrow">→</span>
+    </a>
+
+    <a class="item" href="fundamentos.html">
+      <span class="glyph">🎼</span>
+      <span class="item-body">
+        <span class="tag">Teoria de referência</span>
+        <h2>Fundamentos em Dó</h2>
+        <p>Vocabulário (arpejos, pentatônica, tétrades), derivação modal, ponte qualidade→modo e aplicação de arpégios.</p>
+      </span>
+      <span class="arrow">→</span>
+    </a>
+
+    <a class="item" href="diagramas.html">
+      <span class="glyph">🎸</span>
+      <span class="item-body">
+        <span class="tag">Prática no braço</span>
+        <h2>Diagramas de arpejos</h2>
+        <p>Braço horizontal interativo — escolha o tipo e a tônica; só as notas daquela seleção aparecem.</p>
+      </span>
+      <span class="arrow">→</span>
+    </a>
+  </nav>
+
+  <div class="map">
+    <div class="map-head"><span class="sec-num">→</span><h2>Como as peças se encaixam</h2></div>
+    <p class="flow">
+      <b>Cronograma</b> diz quando estudar cada bloco <span class="sep">·</span>
+      <b>Fundamentos</b> explica a teoria por trás do bloco <span class="sep">·</span>
+      <b>Diagramas</b> coloca a forma no braço para praticar
+    </p>
+  </div>
+
+  <footer>Central de estudos · npmlguitar.github.io · <a href="#" id="logout" style="color:inherit">sair</a></footer>
+</div>
+<script>
+  document.getElementById("logout").addEventListener("click", function(ev){
+    ev.preventDefault();
+    localStorage.removeItem("npml-guitar-auth");
+    location.href = "login.html";
+  });
+</script>
+</body>
+</html>

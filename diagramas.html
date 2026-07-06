@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script>
+(function(){
+  var STORE_KEY = "npml-guitar-auth";
+  var MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
+  try {
+    var saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+    var ok = saved && saved.ok && (Date.now() - saved.ts) < MAX_AGE_MS;
+    if (!ok) {
+      var here = location.pathname.split("/").pop() || "index.html";
+      location.replace("login.html?next=" + encodeURIComponent(here));
+    }
+  } catch(e) { location.replace("login.html"); }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagramas de Arpejos — Braço Horizontal</title>
+<style>
+  :root {
+    --paper: #F4F3F0; --paper-2: #FBFAF8; --card: #FFFFFF;
+    --ink: #1C1E24; --ink-soft: #4A4D56; --ink-faint: #83868F;
+    --line: #E0DDD6; --line-strong: #CFCBC2; --grid: #33373F;
+    --brass: #B07A15; --brass-deep: #8A5E0C; --brass-wash: #F3E9D4;
+    --focus: #2C6E63;
+    --shadow: 0 1px 2px rgba(28,30,36,.05), 0 6px 20px rgba(28,30,36,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#14161B; --paper-2:#181A20; --card:#20232B; --ink:#E9E7E1; --ink-soft:#B4B2AC; --ink-faint:#7E8089; --line:#2B2E37; --line-strong:#3A3F4A; --grid:#5B6270; --brass:#D5A23F; --brass-deep:#E7BB63; --brass-wash:#2A2418; --focus:#55A99B; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); }
+  }
+  :root[data-theme="light"]{ --paper:#F4F3F0; --paper-2:#FBFAF8; --card:#FFFFFF; --ink:#1C1E24; --ink-soft:#4A4D56; --ink-faint:#83868F; --line:#E0DDD6; --line-strong:#CFCBC2; --grid:#33373F; --brass:#B07A15; --brass-deep:#8A5E0C; --brass-wash:#F3E9D4; --focus:#2C6E63; --shadow:0 1px 2px rgba(28,30,36,.05),0 6px 20px rgba(28,30,36,.06); }
+  :root[data-theme="dark"]{ --paper:#14161B; --paper-2:#181A20; --card:#20232B; --ink:#E9E7E1; --ink-soft:#B4B2AC; --ink-faint:#7E8089; --line:#2B2E37; --line-strong:#3A3F4A; --grid:#5B6270; --brass:#D5A23F; --brass-deep:#E7BB63; --brass-wash:#2A2418; --focus:#55A99B; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); }
+
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width: 960px; margin:0 auto; padding: clamp(1.5rem,4vw,3.5rem) clamp(1rem,4vw,2rem) 4rem; }
+
+  .backlink { display:inline-flex; align-items:center; gap:.4rem; font-family:var(--mono); font-size:.78rem; color:var(--ink-faint); text-decoration:none; margin-bottom:1.1rem; }
+  .backlink:hover { color:var(--brass); }
+
+  .eyebrow { font-family:var(--mono); font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--brass); margin:0 0 .9rem; display:flex; align-items:center; gap:.6rem; }
+  .eyebrow::before { content:""; width:26px; height:2px; background:var(--brass); display:inline-block; }
+  h1 { font-family:var(--serif); font-weight:600; font-size:clamp(1.9rem,5.5vw,2.8rem); line-height:1.06; letter-spacing:-.01em; text-wrap:balance; margin:0 0 .7rem; }
+  h1 em { font-style:italic; color:var(--brass); }
+  .lead { color:var(--ink-soft); font-size:1.05rem; max-width:64ch; margin:0 0 1.6rem; }
+
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:1.2rem 1.3rem; box-shadow:var(--shadow); }
+  .ctrl-row { display:flex; flex-direction:column; gap:1rem; }
+  .ctrl-group > .lbl { font-family:var(--mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.5rem; }
+  .btns { display:flex; flex-wrap:wrap; gap:.4rem; }
+  button.pick { font-family:var(--sans); font-size:.86rem; padding:.4rem .8rem; border:1px solid var(--line-strong); border-radius:8px; background:var(--paper-2); color:var(--ink-soft); cursor:pointer; transition:all .12s; }
+  button.pick:hover { border-color:var(--brass); color:var(--ink); }
+  button.pick.active { background:var(--brass); border-color:var(--brass); color:#fff; font-weight:600; }
+  button.pick:focus-visible { outline:2px solid var(--focus); outline-offset:2px; }
+  button.root { font-family:var(--mono); min-width:2.3rem; padding:.35rem .3rem; }
+
+  .now { display:flex; align-items:baseline; gap:.7rem; flex-wrap:wrap; margin:1.5rem 0 .8rem; }
+  .now h2 { font-family:var(--serif); font-size:1.35rem; margin:0; font-weight:600; }
+  .now .f { font-family:var(--mono); font-size:.9rem; color:var(--brass-deep); background:var(--brass-wash); border:1px solid var(--brass); padding:.1rem .5rem; border-radius:6px; }
+
+  .board-scroll { overflow-x:auto; border:1px solid var(--line); border-radius:14px; background:var(--card); box-shadow:var(--shadow); padding:.9rem .6rem .7rem; }
+  svg.board { display:block; min-width:760px; width:100%; height:auto; }
+  .fb-string { stroke:var(--grid); }
+  .fb-fret { stroke:var(--grid); stroke-width:2; }
+  .fb-nut { stroke:var(--ink); stroke-width:6; stroke-linecap:round; }
+  .fb-marker { fill:var(--line-strong); }
+  .fb-fnum { fill:var(--ink-faint); font:600 12px var(--mono); text-anchor:middle; }
+  .fb-slabel { fill:var(--ink-faint); font:600 12px var(--mono); }
+  .note text { font:700 11px var(--mono); text-anchor:middle; dominant-baseline:central; }
+  .n-root circle { fill:var(--brass); } .n-root text { fill:#fff; }
+  .n-core circle { fill:var(--ink); } .n-core text { fill:var(--paper-2); }
+  .n-sev  circle { fill:var(--card); stroke:var(--ink-soft); stroke-width:1.8; } .n-sev text { fill:var(--ink); }
+  .n-ext  circle { fill:var(--focus); } .n-ext text { fill:#fff; }
+
+  .legend { display:flex; flex-wrap:wrap; gap:1rem 1.3rem; margin-top:1.2rem; font-size:.85rem; color:var(--ink-soft); }
+  .legend .li { display:flex; align-items:center; gap:.45rem; }
+  .dot { width:1.05rem; height:1.05rem; border-radius:50%; display:inline-block; flex:none; }
+  .dot.root { background:var(--brass); }
+  .dot.core { background:var(--ink); }
+  .dot.sev { background:var(--card); border:1.8px solid var(--ink-soft); }
+  .dot.ext { background:var(--focus); }
+
+  .tip { margin-top:1.7rem; background:linear-gradient(180deg,var(--brass-wash),var(--card)); border:1px solid var(--brass); border-radius:12px; padding:1rem 1.2rem; font-size:.92rem; }
+  .tip b { color:var(--brass-deep); }
+  .tip p { margin:.3rem 0 0; }
+  footer { margin-top:2.5rem; padding-top:1.2rem; border-top:1px solid var(--line); color:var(--ink-faint); font-size:.82rem; font-family:var(--mono); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Kit de estudo · diagramas de braço (horizontal)</p>
+    <h1>Arpejos no braço — <em>só as notas que você toca</em></h1>
+    <p class="lead">Escolha o tipo de estudo e a tônica: o braço mostra <strong>apenas as notas daquela seleção</strong> — no arpejo maior só T·3·5, na pentatônica só as 5 notas dela, e assim por diante. Nada de excesso de informação no braço.</p>
+  </header>
+
+  <div class="panel">
+    <div class="ctrl-row">
+      <div class="ctrl-group">
+        <div class="lbl">Seleção de estudo</div>
+        <div class="btns" id="typeBtns"></div>
+      </div>
+      <div class="ctrl-group">
+        <div class="lbl">Tônica</div>
+        <div class="btns" id="rootBtns"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="now">
+    <h2 id="nowName">Arpejo maior</h2>
+    <span class="f" id="nowFormula">1 · 3 · 5</span>
+  </div>
+
+  <div class="board-scroll">
+    <div id="board"></div>
+  </div>
+
+  <div class="legend">
+    <span class="li"><span class="dot root"></span> T — tônica</span>
+    <span class="li"><span class="dot core"></span> núcleo (3ª, 5ª)</span>
+    <span class="li"><span class="dot sev"></span> 7ª (7 / 7M)</span>
+    <span class="li"><span class="dot ext"></span> extensão (2ª, 6ª)</span>
+  </div>
+
+  <div class="tip">
+    <b>Como praticar (cobrir as 5 posições):</b>
+    <p>Ache uma <b>T</b> na 6ª ou na 5ª corda e toque só as notas ao redor dela — é uma posição. Suba para a próxima T: mesma forma, nova região do braço. Percorrer todas as Ts do diagrama é cobrir o braço inteiro. Troque a tônica para transpor pelo ciclo de quartas (C → F → B♭ …).</p>
+  </div>
+
+  <footer>Braço horizontal · mostra somente as notas da seleção ativa · parte do kit de estudo em Dó.</footer>
+</div>
+
+<script>
+  var STRINGS = [
+    {n:'E', open:4}, {n:'A', open:9}, {n:'D', open:2},
+    {n:'G', open:7}, {n:'B', open:11}, {n:'e', open:4}
+  ]; // topo = 6ª corda (mi grave), base = 1ª corda (mi agudo)
+
+  var ARPS = {
+    maior: { name:'Arpejo maior',      formula:'1 · 3 · 5',         map:{0:'T',4:'3',7:'5'} },
+    menor: { name:'Arpejo menor',      formula:'1 · ♭3 · 5',        map:{0:'T',3:'♭3',7:'5'} },
+    penta: { name:'Pentatônica maior', formula:'1 · 2 · 3 · 5 · 6', map:{0:'T',2:'2',4:'3',7:'5',9:'6'} },
+    t7M:   { name:'Tétrade 7M',        formula:'1 · 3 · 5 · 7',     map:{0:'T',4:'3',7:'5',11:'7M'} },
+    t7:    { name:'Tétrade 7',         formula:'1 · 3 · 5 · ♭7',    map:{0:'T',4:'3',7:'5',10:'7'} },
+    tm7:   { name:'Tétrade m7',        formula:'1 · ♭3 · 5 · ♭7',   map:{0:'T',3:'♭3',7:'5',10:'7'} },
+    tm7b5: { name:'Tétrade m7(♭5)',    formula:'1 · ♭3 · ♭5 · ♭7',  map:{0:'T',3:'♭3',6:'♭5',10:'7'} }
+  };
+  var ORDER = ['maior','menor','penta','t7M','t7','tm7','tm7b5'];
+  var LABELS = { maior:'Maior', menor:'Menor', penta:'Penta maior', t7M:'7M', t7:'7', tm7:'m7', tm7b5:'m7(♭5)' };
+  var ROOTS = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+  var state = { arp:'maior', root:0 };
+
+  function role(iv){
+    if(iv===0) return 'n-root';
+    if(iv===2||iv===9) return 'n-ext';
+    if(iv===10||iv===11) return 'n-sev';
+    return 'n-core';
+  }
+
+  function renderBoard(){
+    var arp = ARPS[state.arp], map = arp.map, root = state.root;
+    var maxFret = 15, sg = 32, top = 22, nutX = 56, fw = 46, R = 11;
+    var openX = nutX - 26;
+    var W = nutX + maxFret*fw + 16, H = top + 5*sg + 30;
+    var s = '<svg class="board" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama horizontal de '+arp.name+' em '+ROOTS[root]+'">';
+
+    // strings (horizontal) + labels
+    for(var i=0;i<6;i++){
+      var y = top + i*sg;
+      s += '<line class="fb-string" x1="'+nutX+'" y1="'+y+'" x2="'+(nutX+maxFret*fw)+'" y2="'+y+'"/>';
+      s += '<text class="fb-slabel" x="18" y="'+(y+4)+'">'+STRINGS[i].n+'</text>';
+    }
+    // frets (vertical) + nut
+    for(var f=1; f<=maxFret; f++){
+      var x = nutX + f*fw;
+      s += '<line class="fb-fret" x1="'+x+'" y1="'+top+'" x2="'+x+'" y2="'+(top+5*sg)+'"/>';
+    }
+    s += '<line class="fb-nut" x1="'+nutX+'" y1="'+top+'" x2="'+nutX+'" y2="'+(top+5*sg)+'"/>';
+
+    // inlay markers (between 3rd and 4th string)
+    var cy = top + 2.5*sg;
+    [3,5,7,9,15].forEach(function(f){ var x=nutX+(f-0.5)*fw; s+='<circle class="fb-marker" cx="'+x+'" cy="'+cy+'" r="4"/>'; });
+    (function(){ var x=nutX+(12-0.5)*fw; s+='<circle class="fb-marker" cx="'+x+'" cy="'+(cy-9)+'" r="4"/><circle class="fb-marker" cx="'+x+'" cy="'+(cy+9)+'" r="4"/>'; })();
+    // fret numbers (below)
+    [3,5,7,9,12,15].forEach(function(f){ var x=nutX+(f-0.5)*fw; s+='<text class="fb-fnum" x="'+x+'" y="'+(top+5*sg+22)+'">'+f+'</text>'; });
+
+    // notes
+    for(var st=0; st<6; st++){
+      for(var fr=0; fr<=maxFret; fr++){
+        var semi = (STRINGS[st].open + fr) % 12;
+        var iv = ((semi - root) % 12 + 12) % 12;
+        if(map[iv] === undefined) continue;
+        var y2 = top + st*sg;
+        var x = (fr===0) ? openX : (nutX + (fr-0.5)*fw);
+        s += '<g class="note '+role(iv)+'"><circle cx="'+x+'" cy="'+y2+'" r="'+R+'"/><text x="'+x+'" y="'+y2+'">'+map[iv]+'</text></g>';
+      }
+    }
+    s += '</svg>';
+    document.getElementById('board').innerHTML = s;
+    document.getElementById('nowName').textContent = arp.name + ' · em ' + ROOTS[root];
+    document.getElementById('nowFormula').textContent = arp.formula;
+  }
+
+  function buildControls(){
+    var tb = document.getElementById('typeBtns');
+    ORDER.forEach(function(k){
+      var b = document.createElement('button');
+      b.className = 'pick' + (k===state.arp?' active':'');
+      b.textContent = LABELS[k];
+      b.setAttribute('aria-pressed', k===state.arp);
+      b.onclick = function(){ state.arp = k; syncActive(tb,b); renderBoard(); };
+      tb.appendChild(b);
+    });
+    var rb = document.getElementById('rootBtns');
+    ROOTS.forEach(function(r,idx){
+      var b = document.createElement('button');
+      b.className = 'pick root' + (idx===state.root?' active':'');
+      b.textContent = r;
+      b.setAttribute('aria-pressed', idx===state.root);
+      b.onclick = function(){ state.root = idx; syncActive(rb,b); renderBoard(); };
+      rb.appendChild(b);
+    });
+  }
+  function syncActive(container, btn){
+    container.querySelectorAll('button').forEach(function(x){ x.classList.remove('active'); x.setAttribute('aria-pressed','false'); });
+    btn.classList.add('active'); btn.setAttribute('aria-pressed','true');
+  }
+
+  buildControls();
+  renderBoard();
+</script>
+</body>
+</html>

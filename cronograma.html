@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script>
+(function(){
+  var STORE_KEY = "npml-guitar-auth";
+  var MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
+  try {
+    var saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+    var ok = saved && saved.ok && (Date.now() - saved.ts) < MAX_AGE_MS;
+    if (!ok) {
+      var here = location.pathname.split("/").pop() || "index.html";
+      location.replace("login.html?next=" + encodeURIComponent(here));
+    }
+  } catch(e) { location.replace("login.html"); }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cronograma de Estudos — Guitarra</title>
+<style>
+  :root {
+    /* neutrals biased warm-slate, not pure grey */
+    --paper: #F4F3F0;
+    --paper-2: #FBFAF8;
+    --card: #FFFFFF;
+    --ink: #1C1E24;
+    --ink-soft: #4A4D56;
+    --ink-faint: #83868F;
+    --line: #E0DDD6;
+    --line-strong: #CFCBC2;
+    /* one bold place: brass/amber for the apex + accents */
+    --brass: #B07A15;
+    --brass-deep: #8A5E0C;
+    --brass-wash: #F3E9D4;
+    --focus: #2C6E63; /* muted teal, structural only (rest/prep) */
+    --shadow: 0 1px 2px rgba(28,30,36,.05), 0 6px 20px rgba(28,30,36,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #14161B;
+      --paper-2: #181A20;
+      --card: #1E2129;
+      --ink: #E9E7E1;
+      --ink-soft: #B4B2AC;
+      --ink-faint: #7E8089;
+      --line: #2B2E37;
+      --line-strong: #383C47;
+      --brass: #D5A23F;
+      --brass-deep: #E7BB63;
+      --brass-wash: #2A2418;
+      --focus: #55A99B;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F4F3F0; --paper-2: #FBFAF8; --card: #FFFFFF;
+    --ink: #1C1E24; --ink-soft: #4A4D56; --ink-faint: #83868F;
+    --line: #E0DDD6; --line-strong: #CFCBC2;
+    --brass: #B07A15; --brass-deep: #8A5E0C; --brass-wash: #F3E9D4;
+    --focus: #2C6E63;
+    --shadow: 0 1px 2px rgba(28,30,36,.05), 0 6px 20px rgba(28,30,36,.06);
+  }
+  :root[data-theme="dark"] {
+    --paper: #14161B; --paper-2: #181A20; --card: #1E2129;
+    --ink: #E9E7E1; --ink-soft: #B4B2AC; --ink-faint: #7E8089;
+    --line: #2B2E37; --line-strong: #383C47;
+    --brass: #D5A23F; --brass-deep: #E7BB63; --brass-wash: #2A2418;
+    --focus: #55A99B;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 2rem) 4rem;
+  }
+
+  /* ---------- header ---------- */
+  header { margin-bottom: 2.75rem; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .72rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin: 0 0 .9rem;
+    display: flex; align-items: center; gap: .6rem;
+  }
+  .eyebrow::before {
+    content: ""; width: 26px; height: 2px; background: var(--brass); display: inline-block;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(2rem, 6vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -.01em;
+    text-wrap: balance;
+    margin: 0 0 .7rem;
+  }
+  h1 em { font-style: italic; color: var(--brass); }
+  .lead {
+    color: var(--ink-soft);
+    font-size: 1.08rem;
+    max-width: 60ch;
+    margin: 0 0 1.5rem;
+  }
+  .chips { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .chip {
+    font-family: var(--mono);
+    font-size: .78rem;
+    padding: .34rem .7rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    color: var(--ink-soft);
+    background: var(--paper-2);
+    display: inline-flex; align-items: center; gap: .4rem;
+  }
+  .chip b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- section scaffolding ---------- */
+  section { margin-top: 3rem; }
+  .sec-head {
+    display: flex; align-items: baseline; gap: .75rem;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: .6rem; margin-bottom: 1.4rem;
+  }
+  .sec-num {
+    font-family: var(--mono);
+    font-size: .78rem;
+    color: var(--brass);
+    font-weight: 600;
+  }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin: 0;
+    letter-spacing: -.01em;
+  }
+  .sec-note { color: var(--ink-faint); font-size: .92rem; margin: -.6rem 0 1.3rem; }
+
+  /* ---------- pyramid ---------- */
+  .pyramid { display: flex; flex-direction: column; align-items: center; gap: .4rem; }
+  .layer {
+    background: var(--card);
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    padding: .7rem 1rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    box-shadow: var(--shadow);
+    width: 100%;
+  }
+  .layer .l-name { font-weight: 600; font-size: .98rem; }
+  .layer .l-ex { font-family: var(--mono); font-size: .78rem; color: var(--ink-faint); text-align: right; }
+  .layer.apex {
+    background: linear-gradient(180deg, var(--brass-wash), var(--card));
+    border-color: var(--brass);
+  }
+  .layer.apex .l-name { color: var(--brass-deep); }
+  /* stagger widths for pyramid feel, base widest */
+  .layer:nth-child(1){ width: 100%; }
+  .layer:nth-child(2){ width: 92%; }
+  .layer:nth-child(3){ width: 84%; }
+  .layer:nth-child(4){ width: 76%; }
+  .layer:nth-child(5){ width: 68%; }
+  .layer:nth-child(6){ width: 60%; }
+  @media (max-width: 560px){ .layer{ width: 100% !important; } .layer .l-ex{ display:none; } }
+
+  /* ---------- week grid ---------- */
+  .week { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; }
+  @media (max-width: 620px){ .week { grid-template-columns: 1fr; } }
+  .day {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    box-shadow: var(--shadow);
+    display: flex; flex-direction: column; gap: .35rem;
+  }
+  .day.weekend { border-style: dashed; border-color: var(--line-strong); background: var(--paper-2); }
+  .day.apex-day { border-color: var(--brass); }
+  .day-top { display: flex; align-items: center; justify-content: space-between; }
+  .day-name {
+    font-family: var(--mono); font-size: .74rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-faint);
+  }
+  .day-time {
+    font-family: var(--mono); font-size: .72rem; color: var(--brass);
+    border: 1px solid var(--brass); border-radius: 5px; padding: .05rem .4rem;
+  }
+  .day-time.free { color: var(--focus); border-color: var(--focus); }
+  .day-focus { font-family: var(--serif); font-size: 1.05rem; font-weight: 600; }
+  .day-body { font-size: .9rem; color: var(--ink-soft); }
+
+  /* ---------- 30 min template ---------- */
+  .tmpl { display: flex; gap: .6rem; flex-wrap: wrap; }
+  .slot {
+    flex: 1; min-width: 150px;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: .9rem 1rem; box-shadow: var(--shadow);
+  }
+  .slot .mins { font-family: var(--mono); font-size: 1.35rem; font-weight: 600; color: var(--brass); font-variant-numeric: tabular-nums; }
+  .slot .what { font-weight: 600; margin: .2rem 0 .15rem; font-size: .95rem; }
+  .slot .desc { font-size: .84rem; color: var(--ink-soft); }
+
+  /* ---------- method / tables ---------- */
+  .steps { display: grid; gap: .6rem; margin-bottom: 1.4rem; }
+  .step {
+    display: grid; grid-template-columns: auto 1fr; gap: .9rem; align-items: start;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: .85rem 1rem; box-shadow: var(--shadow);
+  }
+  .step .s-num {
+    font-family: var(--mono); font-weight: 700; color: #fff; background: var(--brass);
+    width: 1.7rem; height: 1.7rem; border-radius: 6px;
+    display: grid; place-items: center; font-size: .9rem;
+  }
+  .step .s-txt b { display:block; margin-bottom: .1rem; }
+  .step .s-txt span { color: var(--ink-soft); font-size: .92rem; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; min-width: 480px; background: var(--card); }
+  caption { text-align: left; padding: .8rem 1rem; font-size: .82rem; color: var(--ink-faint); border-bottom: 1px solid var(--line); font-family: var(--mono); letter-spacing: .04em; }
+  th, td { text-align: left; padding: .7rem 1rem; border-bottom: 1px solid var(--line); font-size: .9rem; }
+  th { font-family: var(--mono); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; }
+  tr:last-child td { border-bottom: none; }
+  td.chord, td.notes { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  td.chord { font-weight: 600; color: var(--brass-deep); }
+  .arps { font-family: var(--mono); font-size: .86rem; }
+  .arps b { color: var(--ink); }
+
+  /* ---------- rotation ---------- */
+  .rot { display: flex; flex-wrap: wrap; gap: .45rem; }
+  .rot .k {
+    font-family: var(--mono); font-size: .84rem; padding: .35rem .7rem;
+    border: 1px solid var(--line-strong); border-radius: 7px; background: var(--card);
+    display: inline-flex; gap: .5rem; align-items: baseline;
+  }
+  .rot .k small { color: var(--brass); font-size: .68rem; }
+
+  /* ---------- checklist ---------- */
+  .track { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; }
+  .track-card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem; box-shadow: var(--shadow); }
+  .track-card h3 { font-family: var(--mono); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); margin: 0 0 .7rem; }
+  .check { display: flex; align-items: center; gap: .55rem; padding: .18rem 0; font-size: .92rem; cursor: pointer; }
+  .check input { appearance: none; width: 1.05rem; height: 1.05rem; border: 1.5px solid var(--line-strong); border-radius: 4px; display: grid; place-items: center; cursor: pointer; flex: none; background: var(--paper-2); }
+  .check input:checked { background: var(--brass); border-color: var(--brass); }
+  .check input:checked::after { content: "✓"; color: #fff; font-size: .75rem; font-weight: 700; }
+  .check input:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .check span { transition: color .15s, opacity .15s; }
+  .check input:checked + span { color: var(--ink-faint); text-decoration: line-through; }
+
+  footer { margin-top: 3.5rem; padding-top: 1.2rem; border-top: 1px solid var(--line); color: var(--ink-faint); font-size: .82rem; font-family: var(--mono); }
+
+  @media (prefers-reduced-motion: no-preference){
+    .day, .slot, .layer, .step, .track-card { animation: rise .5s cubic-bezier(.2,.7,.3,1) both; }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Método Antônio Lugão · Guitarra</p>
+    <h1>Cronograma de estudos: da <em>tríade</em> ao improviso</h1>
+    <p class="lead">Um ciclo semanal que sobe a pirâmide do método — construção de acordes, pentatônicas, campo harmônico e modos — até o topo: a <strong>aplicação de arpégios</strong> sobre o acorde.</p>
+    <div class="chips">
+      <span class="chip">⏱️ <b>30&nbsp;min</b>/dia útil</span>
+      <span class="chip">🎸 fins de semana <b>livres</b></span>
+      <span class="chip">📅 ciclo <b>semanal</b></span>
+      <span class="chip">🎯 teoria · braço · improviso</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>A pirâmide do método</h2></div>
+    <p class="sec-note">Cada camada é pré-requisito da próxima. Você não improvisa bem sem enxergar os arpégios; não enxerga os arpégios sem dominar as tétrades. Estude de baixo para cima.</p>
+    <div class="pyramid">
+      <div class="layer apex"><span class="l-name">🎯 Aplicação de arpégios</span><span class="l-ex">método dos 3 passos</span></div>
+      <div class="layer"><span class="l-name">Modos gregos</span><span class="l-ex">Jônio → Lócrio</span></div>
+      <div class="layer"><span class="l-name">Campo harmônico</span><span class="l-ex">os 7 graus de um tom</span></div>
+      <div class="layer"><span class="l-name">Pentatônicas</span><span class="l-ex">de cada acorde do campo</span></div>
+      <div class="layer"><span class="l-name">Tétrades / arpégios</span><span class="l-ex">7M · 7 · m7 · m7(b5)</span></div>
+      <div class="layer"><span class="l-name">Tríades</span><span class="l-ex">maior · menor · ° · +</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>A semana</h2></div>
+    <p class="sec-note">Dias úteis: um tema por dia, 30 min. Fins de semana: sessão longa para integrar tudo e preparar a próxima aula.</p>
+    <div class="week">
+      <div class="day">
+        <div class="day-top"><span class="day-name">Segunda</span><span class="day-time">30 min</span></div>
+        <div class="day-focus">Construção</div>
+        <div class="day-body">Tríades e tétrades do acorde da semana. Arpeje em 2–3 posições do braço.</div>
+      </div>
+      <div class="day">
+        <div class="day-top"><span class="day-name">Terça</span><span class="day-time">30 min</span></div>
+        <div class="day-focus">Pentatônicas</div>
+        <div class="day-body">As pentas do campo da semana, conectando as posições vizinhas.</div>
+      </div>
+      <div class="day">
+        <div class="day-top"><span class="day-name">Quarta</span><span class="day-time">30 min</span></div>
+        <div class="day-focus">Campo &amp; modos</div>
+        <div class="day-body">Escreva os 7 graus do campo. Toque a escala e o modo de cada grau.</div>
+      </div>
+      <div class="day apex-day">
+        <div class="day-top"><span class="day-name">Quinta</span><span class="day-time">30 min</span></div>
+        <div class="day-focus">🎯 Aplicação I</div>
+        <div class="day-body">O método dos 3 passos sobre <b>um</b> acorde. Abra as notas → ache os 4 arpégios.</div>
+      </div>
+      <div class="day apex-day">
+        <div class="day-top"><span class="day-name">Sexta</span><span class="day-time">30 min</span></div>
+        <div class="day-focus">🎯 Aplicação II</div>
+        <div class="day-body">Ligue os 4 arpégios no braço, sem parar — transições limpas entre eles.</div>
+      </div>
+      <div class="day weekend">
+        <div class="day-top"><span class="day-name">Sábado</span><span class="day-time free">livre</span></div>
+        <div class="day-focus">Improviso + revisão</div>
+        <div class="day-body">Sessão longa: solar sobre um playback aplicando a semana. Revise o que travou.</div>
+      </div>
+      <div class="day weekend">
+        <div class="day-top"><span class="day-name">Domingo</span><span class="day-time free">livre</span></div>
+        <div class="day-focus">Preparar a aula</div>
+        <div class="day-body">Adiante o tema da próxima aula e toque música de verdade por prazer.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>O molde dos 30 minutos</h2></div>
+    <p class="sec-note">Mesma estrutura todo dia útil — só muda o "foco" no meio.</p>
+    <div class="tmpl">
+      <div class="slot"><div class="mins">5′</div><div class="what">Aquecimento</div><div class="desc">Arpejo ou escala da semana, devagar e no metrônomo.</div></div>
+      <div class="slot"><div class="mins">20′</div><div class="what">Foco do dia</div><div class="desc">O tema da coluna correspondente da semana.</div></div>
+      <div class="slot"><div class="mins">5′</div><div class="what">Gravar &amp; ouvir</div><div class="desc">Grave um trecho no celular e escute — é onde o erro aparece.</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>O topo: aplicação de arpégios</h2></div>
+    <p class="sec-note">O pulo do gato do método. As 4 notas de um acorde são as tônicas de 4 arpégios do campo — toque-os e sai o som do modo.</p>
+    <div class="steps">
+      <div class="step"><span class="s-num">1</span><span class="s-txt"><b>Definir o modo</b><span>Qual modo cabe no acorde? Ex.: sobre Dm7 → Dórico (2º grau do campo de C).</span></span></div>
+      <div class="step"><span class="s-num">2</span><span class="s-txt"><b>Abrir as notas do acorde</b><span>Tônica, terça, quinta e sétima. Ex.: Dm7 = D · F · A · C.</span></span></div>
+      <div class="step"><span class="s-num">3</span><span class="s-txt"><b>Associar aos arpégios do campo</b><span>Cada nota do acorde é tônica de um arpégio diatônico, empilhados em terças.</span></span></div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <caption>EXEMPLOS RESOLVIDOS</caption>
+        <thead><tr><th>Acorde</th><th>Modo</th><th>Notas</th><th>Os 4 arpégios</th></tr></thead>
+        <tbody>
+          <tr><td class="chord">Dm7</td><td>Dórico · campo de C</td><td class="notes">D F A C</td><td class="arps"><b>Dm7</b> · F7M · Am7 · C7M</td></tr>
+          <tr><td class="chord">Am7</td><td>Eólio · campo de G</td><td class="notes">A C E G</td><td class="arps"><b>Am7</b> · C7M · Em7 · G7M</td></tr>
+          <tr><td class="chord">G7</td><td>Mixolídio · campo de C</td><td class="notes">G B D F</td><td class="arps"><b>G7</b> · Bm7(b5) · Dm7 · F7M</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>Rotação de campos</h2></div>
+    <p class="sec-note">Um campo novo por semana, pelo ciclo de quartas. Regra: siga o tom que o professor deu na aula; se a aula não trouxe tom novo, avance para o próximo daqui.</p>
+    <div class="rot">
+      <span class="k"><small>S1</small> C</span>
+      <span class="k"><small>S2</small> F</span>
+      <span class="k"><small>S3</small> B♭</span>
+      <span class="k"><small>S4</small> E♭</span>
+      <span class="k"><small>S5</small> A♭</span>
+      <span class="k"><small>S6</small> D♭</span>
+      <span class="k"><small>S7</small> G♭</span>
+      <span class="k"><small>S8</small> B</span>
+      <span class="k"><small>S9</small> E</span>
+      <span class="k"><small>S10</small> A</span>
+      <span class="k"><small>S11</small> D</span>
+      <span class="k"><small>S12</small> G</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>Cobertura — marque o que dominar</h2></div>
+    <p class="sec-note">Domínio = tocar sem pensar, em qualquer posição. Volta a marcar quando esquecer. (Fica salvo neste navegador.)</p>
+    <div class="track">
+      <div class="track-card">
+        <h3>Tríades</h3>
+        <label class="check"><input type="checkbox" data-k="t-maior"><span>Maior — Dó Mi Sol</span></label>
+        <label class="check"><input type="checkbox" data-k="t-menor"><span>Menor — Dó Mi♭ Sol</span></label>
+        <label class="check"><input type="checkbox" data-k="t-dim"><span>Diminuta ° — Dó Mi♭ Sol♭</span></label>
+        <label class="check"><input type="checkbox" data-k="t-aug"><span>Aumentada + — Dó Mi Sol♯</span></label>
+      </div>
+      <div class="track-card">
+        <h3>Tétrades / arpégios</h3>
+        <label class="check"><input type="checkbox" data-k="q-7m"><span>7M — Dó Mi Sol Si</span></label>
+        <label class="check"><input type="checkbox" data-k="q-7"><span>7 — Dó Mi Sol Si♭</span></label>
+        <label class="check"><input type="checkbox" data-k="q-m7"><span>m7 — Dó Mi♭ Sol Si♭</span></label>
+        <label class="check"><input type="checkbox" data-k="q-m7b5"><span>m7(b5) — Dó Mi♭ Sol♭ Si♭</span></label>
+      </div>
+      <div class="track-card">
+        <h3>Modos gregos</h3>
+        <label class="check"><input type="checkbox" data-k="m-jon"><span>Jônio</span></label>
+        <label class="check"><input type="checkbox" data-k="m-dor"><span>Dórico</span></label>
+        <label class="check"><input type="checkbox" data-k="m-fri"><span>Frígio</span></label>
+        <label class="check"><input type="checkbox" data-k="m-lid"><span>Lídio</span></label>
+        <label class="check"><input type="checkbox" data-k="m-mix"><span>Mixolídio</span></label>
+        <label class="check"><input type="checkbox" data-k="m-eol"><span>Eólio</span></label>
+        <label class="check"><input type="checkbox" data-k="m-loc"><span>Lócrio</span></label>
+      </div>
+      <div class="track-card">
+        <h3>Campos harmônicos</h3>
+        <label class="check"><input type="checkbox" data-k="c-c"><span>C · F · G (base)</span></label>
+        <label class="check"><input type="checkbox" data-k="c-bemois"><span>B♭ · E♭ · A♭</span></label>
+        <label class="check"><input type="checkbox" data-k="c-sust"><span>D · A · E</span></label>
+        <label class="check"><input type="checkbox" data-k="c-rest"><span>D♭ · G♭ · B</span></label>
+      </div>
+    </div>
+  </section>
+
+  <footer>Feito para acompanhar as aulas semanais · atualize a rotação conforme o professor avança.</footer>
+</div>
+
+<script>
+  (function(){
+    var KEY = "cronograma-guitarra-v1";
+    var boxes = document.querySelectorAll('.check input');
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch(e){}
+    boxes.forEach(function(b){
+      if (saved[b.dataset.k]) b.checked = true;
+      b.addEventListener('change', function(){
+        saved[b.dataset.k] = b.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch(e){}
+      });
+    });
+  })();
+</script>
+</body>
+</html>
