@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<script>
+(function(){
+  var STORE_KEY = "npml-guitar-auth";
+  var MAX_AGE_MS = 90 * 24 * 60 * 60 * 1000;
+  try {
+    var saved = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+    var ok = saved && saved.ok && (Date.now() - saved.ts) < MAX_AGE_MS;
+    if (!ok) {
+      var here = location.pathname.split("/").pop() || "index.html";
+      location.replace("login.html?next=" + encodeURIComponent(here));
+    }
+  } catch(e) { location.replace("login.html"); }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>12 Variações de Dó — Diagramas de Acordes</title>
+<style>
+  :root {
+    --paper: #F4F3F0; --paper-2: #FBFAF8; --card: #FFFFFF;
+    --ink: #1C1E24; --ink-soft: #4A4D56; --ink-faint: #83868F;
+    --line: #E0DDD6; --line-strong: #CFCBC2; --grid: #33373F;
+    --brass: #B07A15; --brass-deep: #8A5E0C; --brass-wash: #F3E9D4;
+    --focus: #2C6E63;
+    --shadow: 0 1px 2px rgba(28,30,36,.05), 0 6px 20px rgba(28,30,36,.06);
+    --serif: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+    --sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --paper:#14161B; --paper-2:#181A20; --card:#20232B; --ink:#E9E7E1; --ink-soft:#B4B2AC; --ink-faint:#7E8089; --line:#2B2E37; --line-strong:#3A3F4A; --grid:#5B6270; --brass:#D5A23F; --brass-deep:#E7BB63; --brass-wash:#2A2418; --focus:#55A99B; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); }
+  }
+  :root[data-theme="light"]{ --paper:#F4F3F0; --paper-2:#FBFAF8; --card:#FFFFFF; --ink:#1C1E24; --ink-soft:#4A4D56; --ink-faint:#83868F; --line:#E0DDD6; --line-strong:#CFCBC2; --grid:#33373F; --brass:#B07A15; --brass-deep:#8A5E0C; --brass-wash:#F3E9D4; --focus:#2C6E63; --shadow:0 1px 2px rgba(28,30,36,.05),0 6px 20px rgba(28,30,36,.06); }
+  :root[data-theme="dark"]{ --paper:#14161B; --paper-2:#181A20; --card:#20232B; --ink:#E9E7E1; --ink-soft:#B4B2AC; --ink-faint:#7E8089; --line:#2B2E37; --line-strong:#3A3F4A; --grid:#5B6270; --brass:#D5A23F; --brass-deep:#E7BB63; --brass-wash:#2A2418; --focus:#55A99B; --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35); }
+
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font-family:var(--sans); line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width: 1080px; margin:0 auto; padding: clamp(1.5rem,4vw,3.5rem) clamp(1rem,4vw,2rem) 4rem; }
+
+  .backlink { display:inline-flex; align-items:center; gap:.4rem; font-family:var(--mono); font-size:.78rem; color:var(--ink-faint); text-decoration:none; margin-bottom:1.1rem; }
+  .backlink:hover { color:var(--brass); }
+
+  .eyebrow { font-family:var(--mono); font-size:.72rem; letter-spacing:.18em; text-transform:uppercase; color:var(--brass); margin:0 0 .9rem; display:flex; align-items:center; gap:.6rem; }
+  .eyebrow::before { content:""; width:26px; height:2px; background:var(--brass); display:inline-block; }
+  h1 { font-family:var(--serif); font-weight:600; font-size:clamp(1.9rem,5.5vw,2.8rem); line-height:1.06; letter-spacing:-.01em; text-wrap:balance; margin:0 0 .7rem; }
+  h1 em { font-style:italic; color:var(--brass); }
+  .lead { color:var(--ink-soft); font-size:1.05rem; max-width:68ch; margin:0 0 2rem; }
+
+  .panel { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:1.1rem 1.2rem; box-shadow:var(--shadow); margin-bottom:1.6rem; }
+  .ctrl-group > .lbl { font-family:var(--mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:.5rem; }
+  .btns { display:flex; flex-wrap:wrap; gap:.4rem; }
+  button.pick { font-family:var(--sans); font-size:.86rem; padding:.4rem .8rem; border:1px solid var(--line-strong); border-radius:8px; background:var(--paper-2); color:var(--ink-soft); cursor:pointer; transition:all .12s; }
+  button.pick:hover { border-color:var(--brass); color:var(--ink); }
+  button.pick.active { background:var(--brass); border-color:var(--brass); color:#fff; font-weight:600; }
+  button.pick:focus-visible { outline:2px solid var(--focus); outline-offset:2px; }
+
+  .chord-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:1rem; margin-bottom:2rem; }
+  .chord-card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:1.1rem 1rem 1.3rem; box-shadow:var(--shadow); text-align:center; }
+  .chord-card .head { margin-bottom:.6rem; }
+  .chord-card h2 { font-family:var(--serif); font-weight:600; font-size:1.6rem; margin:0; }
+  .chord-card .sub { font-family:var(--mono); font-size:.68rem; color:var(--ink-faint); margin:.15rem 0 .4rem; }
+  .chord-card .formula { display:inline-block; font-family:var(--mono); font-size:.76rem; color:var(--brass-deep); background:var(--brass-wash); border:1px solid var(--brass); padding:.05rem .5rem; border-radius:6px; }
+  .chord-card svg.box { display:block; margin:.8rem auto 0; }
+
+  .fret-lbl { fill:var(--ink-faint); font:600 11px var(--mono); }
+  .cb-line { stroke:var(--grid); }
+  .cb-nut { stroke:var(--ink); stroke-width:5; stroke-linecap:round; }
+  .cb-mark { fill:var(--ink-faint); font:700 12px var(--mono); text-anchor:middle; }
+  .note text { font:700 11px var(--mono); text-anchor:middle; dominant-baseline:central; }
+  .n-root circle { fill:var(--brass); } .n-root text { fill:#fff; }
+  .n-core circle { fill:var(--ink); } .n-core text { fill:var(--paper-2); }
+  .n-sev  circle { fill:var(--card); stroke:var(--ink-soft); stroke-width:1.8; } .n-sev text { fill:var(--ink); }
+  .n-ext  circle { fill:var(--focus); } .n-ext text { fill:#fff; }
+  .barre-bar { fill:var(--brass); }
+  .barre-lbl { fill:#fff; font:700 11px var(--mono); text-anchor:middle; dominant-baseline:central; }
+
+  .legend { display:flex; flex-wrap:wrap; gap:1rem 1.4rem; margin-top:.5rem; font-size:.85rem; color:var(--ink-soft); }
+  .legend .li { display:flex; align-items:center; gap:.45rem; }
+  .dot { width:1.05rem; height:1.05rem; border-radius:50%; display:inline-block; flex:none; }
+  .dot.root { background:var(--brass); }
+  .dot.core { background:var(--ink); }
+  .dot.sev  { background:var(--card); border:1.8px solid var(--ink-soft); }
+  .dot.ext  { background:var(--focus); }
+  .bar-swatch { width:1.6rem; height:.75rem; border-radius:6px; background:var(--brass); display:inline-block; flex:none; }
+
+  footer { margin-top:2.5rem; padding-top:1.2rem; border-top:1px solid var(--line); color:var(--ink-faint); font-size:.82rem; font-family:var(--mono); }
+  .topbar { background: var(--paper-2); border-bottom: 1px solid var(--line); }
+  .topbar-inner { max-width: 1080px; margin:0 auto; padding: .55rem clamp(1rem,4vw,2rem); display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; font-family: var(--mono); font-size:.78rem; color: var(--ink-faint); }
+  .topbar a { color: inherit; text-decoration:none; }
+  .topbar a:hover { color: var(--brass); }
+  .topbar .brand { color: var(--ink); font-weight:600; }
+  .topbar .sep { color: var(--brass); }
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-inner"><a class="brand" href="index.html">Central de estudos</a><span class="sep">·</span><span>npmltech.github.io/guitar</span><span class="sep">·</span><a href="#" id="logout">encerrar sessão</a></div></div>
+
+<div class="wrap">
+  <a class="backlink" href="index.html">&larr; Central de estudos</a>
+  <header>
+    <p class="eyebrow">Kit de estudo · diagramas de acordes</p>
+    <h1>12 variações de <em>Dó</em></h1>
+    <p class="lead">O acorde de Dó em doze roupagens — tríade, sétimas, sexta, extensões e as formas diminuta e meio-diminuta. Cada quadro é um braço na vertical: a pestana (quando existe) aparece como uma barra sólida cobrindo a casa do dedo 1; os demais dedos ficam marcados nas casas seguintes.</p>
+  </header>
+
+  <div class="panel">
+    <div class="ctrl-group">
+      <div class="lbl">Exibição</div>
+      <div class="btns" id="displayBtns"></div>
+    </div>
+  </div>
+
+  <div class="chord-grid" id="chordGrid"></div>
+
+  <div class="legend">
+    <span class="li"><span class="dot root"></span> tônica (1)</span>
+    <span class="li"><span class="dot core"></span> 3ª / ♭3ª / 5ª / ♭5ª</span>
+    <span class="li"><span class="dot sev"></span> 7ª (maior ou menor)</span>
+    <span class="li"><span class="dot ext"></span> 6ª / 9ª</span>
+    <span class="li"><span class="bar-swatch"></span> pestana (dedo 1)</span>
+    <span class="li"><b>x</b> corda não tocada</span>
+    <span class="li"><b>o</b> corda solta</span>
+  </div>
+
+  <footer>Doze roupagens do mesmo acorde · braço vertical, dedo sugerido em cada casa · parte do kit de estudo em Dó.</footer>
+</div>
+
+<script>
+  document.getElementById("logout").addEventListener("click", function(ev){
+    ev.preventDefault();
+    localStorage.removeItem("npml-guitar-auth");
+    location.href = "login.html";
+  });
+</script>
+<script>
+  // Cordas grave->aguda, com a nota solta em semitons a partir de Dó (mesma convenção de diagramas.html)
+  var STRINGS_OPEN = [4,9,2,7,11,4]; // E A D G B e
+
+  function role(iv){
+    if(iv===0) return 'n-root';
+    if(iv===2||iv===9) return 'n-ext';
+    if(iv===10||iv===11) return 'n-sev';
+    return 'n-core';
+  }
+
+  // frets/degs: E A D G B e — null = não tocada, 0 = solta, N = casa N (absoluta)
+  var CHORDS = [
+    { label:'C',      sub:'maior',                                 formula:'1 · 3 · 5',           baseFret:1, frets:[null,3,2,0,1,0],    fingers:[null,3,2,null,1,null],
+      degs:[null,'1','3','5','1','3'] },
+    { label:'Cm',     sub:'menor',                                 formula:'1 · ♭3 · 5',          baseFret:3, frets:[null,3,5,5,4,3],    fingers:[null,null,4,3,2,null], barre:{fret:3, from:1, to:5},
+      degs:[null,'1','5','1','♭3','5'] },
+    { label:'C7',     sub:'dominante (7ª menor)',                  formula:'1 · 3 · 5 · ♭7',      baseFret:1, frets:[null,3,2,3,1,0],    fingers:[null,3,2,4,1,null],
+      degs:[null,'1','3','♭7','1','3'] },
+    { label:'Cm7',    sub:'menor com 7ª menor',                    formula:'1 · ♭3 · 5 · ♭7',     baseFret:3, frets:[null,3,5,3,4,3],    fingers:[null,null,3,null,2,null], barre:{fret:3, from:1, to:5},
+      degs:[null,'1','5','♭7','♭3','5'] },
+    { label:'C6',     sub:'maior com 6ª',                          formula:'1 · 3 · 5 · 6',       baseFret:1, frets:[null,3,2,2,1,0],    fingers:[null,4,2,3,1,null],
+      degs:[null,'1','3','6','1','3'] },
+    { label:'Cm6',    sub:'menor com 6ª',                          formula:'1 · ♭3 · 5 · 6',      baseFret:1, frets:[null,3,1,2,1,3],    fingers:[null,3,null,2,null,4], barre:{fret:1, from:2, to:4},
+      degs:[null,'1','♭3','6','1','5'] },
+    { label:'C7+',    sub:'maior com 7ª maior (maj7)',             formula:'1 · 3 · 5 · 7',       baseFret:1, frets:[null,3,2,0,0,0],    fingers:[null,3,2,null,null,null],
+      degs:[null,'1','3','5','7','3'] },
+    { label:'Cm7+',   sub:'menor com 7ª maior (m/maj7)',           formula:'1 · ♭3 · 5 · 7',      baseFret:3, frets:[null,3,5,4,4,3],    fingers:[null,null,4,2,3,null], barre:{fret:3, from:1, to:5},
+      degs:[null,'1','5','7','♭3','5'] },
+    { label:'Cadd9',  sub:'maior com 9ª (sem 7ª)',                 formula:'1 · 3 · 5 · 9',       baseFret:1, frets:[null,3,2,0,3,3],    fingers:[null,2,1,null,3,4],
+      degs:[null,'1','3','5','9','5'] },
+    { label:'C7(♯9)', sub:'dominante com 9ª aumentada (Hendrix)',  formula:'1 · 3 · ♭7 · ♯9',     baseFret:1, frets:[null,3,2,3,4,null], fingers:[null,2,1,3,4,null],
+      degs:[null,'1','3','♭7','♯9',null] },
+    { label:'C°',     sub:'diminuto',                              formula:'1 · ♭3 · ♭5',         baseFret:3, frets:[null,3,4,5,4,null], fingers:[null,1,2,4,3,null],
+      degs:[null,'1','♭5','1','♭3',null] },
+    { label:'Cø',     sub:'meio-diminuto (m7♭5)',                  formula:'1 · ♭3 · ♭5 · ♭7',    baseFret:1, frets:[null,1,1,3,1,2],    fingers:[null,null,null,4,null,2], barre:{fret:1, from:1, to:4},
+      degs:[null,'♭7','♭3','♭7','1','♭5'] }
+  ];
+  var ROOTS = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
+  var state = { display: 'dedos' };
+
+  function buildChordSVG(ch){
+    var cellW = 32, cellH = 34, topPad = 30, leftPad = 30, rightPad = 20, bottomPad = 10, R = 10;
+    var W = leftPad + 5*cellW + rightPad;
+    var H = topPad + 4*cellH + bottomPad;
+    var x = function(i){ return leftPad + i*cellW; };
+    var yRow = function(fret){ return topPad + (fret - ch.baseFret + 0.5)*cellH; };
+    var yLine = function(r){ return topPad + r*cellH; };
+
+    var s = '<svg class="box" viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de '+ch.label+'">';
+
+    // linhas verticais (cordas)
+    for(var i=0;i<6;i++){
+      s += '<line class="cb-line" x1="'+x(i)+'" y1="'+topPad+'" x2="'+x(i)+'" y2="'+(topPad+4*cellH)+'"/>';
+    }
+    // linhas horizontais (trastes)
+    for(var r=0;r<=4;r++){
+      if(r===0 && ch.baseFret===1){
+        s += '<line class="cb-nut" x1="'+x(0)+'" y1="'+yLine(0)+'" x2="'+x(5)+'" y2="'+yLine(0)+'"/>';
+      } else {
+        s += '<line class="cb-line" x1="'+x(0)+'" y1="'+yLine(r)+'" x2="'+x(5)+'" y2="'+yLine(r)+'"/>';
+      }
+    }
+    // rótulo da casa inicial, se não for a pestana aberta
+    if(ch.baseFret > 1){
+      s += '<text class="fret-lbl" x="'+(leftPad-9)+'" y="'+(yLine(0)+4)+'" text-anchor="end">'+ch.baseFret+'ª</text>';
+    }
+    // x / o acima da primeira linha (cordas não tocadas / soltas)
+    for(var m=0; m<6; m++){
+      var fm = ch.frets[m];
+      if(fm === null){ s += '<text class="cb-mark" x="'+x(m)+'" y="'+(topPad-14)+'">x</text>'; }
+      else if(fm === 0){
+        var openLbl = 'o';
+        if(state.display === 'graus'){ openLbl = ch.degs[m] || 'o'; }
+        else if(state.display === 'notas'){ var openIv = ((STRINGS_OPEN[m]+0)%12+12)%12; openLbl = ROOTS[openIv]; }
+        s += '<text class="cb-mark" x="'+x(m)+'" y="'+(topPad-14)+'">'+openLbl+'</text>';
+      }
+    }
+    // pestana
+    if(ch.barre){
+      var bx1 = x(ch.barre.from), bx2 = x(ch.barre.to), by = yRow(ch.barre.fret);
+      s += '<rect class="barre-bar" x="'+(bx1-R)+'" y="'+(by-R)+'" width="'+(bx2-bx1+2*R)+'" height="'+(2*R)+'" rx="'+R+'"/>';
+      if(state.display === 'dedos'){
+        s += '<text class="barre-lbl" x="'+((bx1+bx2)/2)+'" y="'+by+'">1</text>';
+      }
+    }
+    // notas presas
+    for(var st=0; st<6; st++){
+      var fr = ch.frets[st];
+      if(fr === null || fr === 0) continue;
+      var iv = ((STRINGS_OPEN[st] + fr) % 12 + 12) % 12; // 0 = Dó (tônica)
+      var cls = role(iv);
+      var cy = yRow(fr), cx = x(st);
+      var label = '';
+      if(state.display === 'dedos'){ label = ch.fingers[st] ? String(ch.fingers[st]) : ''; }
+      else if(state.display === 'graus'){ label = ch.degs[st] || ''; }
+      else { label = ROOTS[iv]; }
+      s += '<g class="note '+cls+'"><circle cx="'+cx+'" cy="'+cy+'" r="'+R+'"/>' + (label ? '<text x="'+cx+'" y="'+cy+'">'+label+'</text>' : '') + '</g>';
+    }
+    s += '</svg>';
+    return s;
+  }
+
+  var grid = document.getElementById('chordGrid');
+  function renderGrid(){
+    grid.innerHTML = '';
+    CHORDS.forEach(function(ch){
+      var card = document.createElement('div');
+      card.className = 'chord-card';
+      card.innerHTML =
+        '<div class="head"><h2>'+ch.label+'</h2><div class="sub">'+ch.sub+'</div><span class="formula">'+ch.formula+'</span></div>' +
+        buildChordSVG(ch);
+      grid.appendChild(card);
+    });
+  }
+
+  var DISPLAY_MODES = ['dedos','graus','notas'];
+  var DISPLAY_LABELS = { dedos:'Dedos', graus:'Graus', notas:'Notas' };
+  var db = document.getElementById('displayBtns');
+  DISPLAY_MODES.forEach(function(k){
+    var b = document.createElement('button');
+    b.className = 'pick' + (k===state.display ? ' active' : '');
+    b.textContent = DISPLAY_LABELS[k];
+    b.setAttribute('aria-pressed', k===state.display);
+    b.onclick = function(){
+      state.display = k;
+      db.querySelectorAll('button').forEach(function(x){ x.classList.remove('active'); x.setAttribute('aria-pressed','false'); });
+      b.classList.add('active'); b.setAttribute('aria-pressed','true');
+      renderGrid();
+    };
+    db.appendChild(b);
+  });
+
+  renderGrid();
+</script>
+</body>
+</html>

@@ -6,10 +6,11 @@ Kit de estudo de guitarra (método Antônio Lugão) publicado como site estátic
 
 | Arquivo | O que é |
 | --- | --- |
-| `index.html` | Central de estudos — menu de entrada com links para as três peças abaixo. |
+| `index.html` | Central de estudos — menu de entrada com links para as peças abaixo. |
 | `cronograma.html` | Rotina semanal de estudo (construção, pentatônicas, campo/modos, aplicação de arpejos, checklist de cobertura). |
 | `fundamentos.html` | Guia de teoria em Dó — arpejos, pentatônica, tétrades, derivação modal e ponte qualidade→modo. |
 | `diagramas.html` | Diagrama de braço horizontal interativo para arpejos — escolha o tipo de estudo e a tônica; alterna entre graus (T·3·5…) e nomes de notas reais. |
+| `acordes.html` | 12 variações do acorde de Dó (tríade, sétimas, sexta, extensões, diminuto e meio-diminuto) — braço vertical com pestana e dedilhado sugerido para cada uma. |
 | `login.html` | Portão de acesso simples (gate) que libera as demais páginas. |
 
 ## Acesso
@@ -24,6 +25,10 @@ A página `diagramas.html` desenha o braço da guitarra em SVG e mostra **apenas
 - **Tônica** — as 12 notas cromáticas.
 - **Exibição** — alterna os rótulos dos pontos entre **graus** (T, 3, 5, 7...) e **notas reais** (C, E, G...).
 - **Posição (CAGED)** — por padrão, cada nota do braço já vem colorida pela posição CAGED a que pertence (C·A·G·E·D). Para arpejos/tétrades, selecionar uma letra isola o grip real daquela forma (uma nota por corda, tocável com a mão) com uma linha conectando as notas; para a pentatônica, os números 1-5 isolam a caixa de escala ao redor de cada tônica.
+
+## 12 variações de Dó
+
+A página `acordes.html` mostra o acorde de Dó em doze roupagens (tríade, C7, Cm7, C6, Cm6, C7+/maj7, Cm7+, Cadd9, C7(9), C° e Cø), cada uma como um diagrama de braço vertical: pestana (quando existe) desenhada como barra sólida no dedo 1, demais notas coloridas por função (tônica, 3ª/5ª, 7ª, 6ª/9ª) usando o mesmo esquema de cores dos diagramas de arpejo.
 
 ## Stack
 
